@@ -35,20 +35,33 @@ void KalmanFilter::Predict() {
 void KalmanFilter::Update(const VectorXd &z) {
   /**
    * TODO: update the state by using Kalman Filter equations
-   */
-  _Update(z);
+   */  
+  VectorXd y = z - H_ * x_;
+  _UpdateWithError(y);
 }
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
   /**
    * TODO: update the state by using Extended Kalman Filter equations
    */
+  // compute the error by diff between two different space
+  double px = x_[0];
+  double py = x_[1];
+  double vx = x_[2];
+  double vy = x_[3];
+  double px2py2_sqrt = sqrt(px*px + py*py);
 
-  _Update(z);
+  // guard against divided by zero, also this value should not be zero as it is 
+  // the sensor's location
+  if (px2py2_sqrt == 0)
+    return;
+
+  VectorXd z_(3);
+  z_ << px2py2_sqrt, atan2(py, px), (px * vx + py * vy) / px2py2_sqrt;
+  _UpdateWithError(z_ - z);
 }
 
-void KalmanFilter::_Update(const VectorXd &z) {
-  VectorXd y = z - H_ * x_;
+void KalmanFilter::_UpdateWithError(const VectorXd &y) {
   MatrixXd S = H_ * P_ * H_.transpose() + R_;
   MatrixXd K = P_ * H_.transpose() * S.inverse();
   x_ = x_ + K * y; 

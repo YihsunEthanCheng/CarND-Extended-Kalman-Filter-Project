@@ -5,7 +5,7 @@
 
 class KalmanFilter {
 
-  void _Update(const Eigen::VectorXd &z);
+  void _UpdateWithError(const Eigen::VectorXd &y);
 
  public:
   /**
