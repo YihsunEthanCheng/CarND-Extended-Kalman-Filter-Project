@@ -56,19 +56,13 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    * Initialization
    */
   // time stamps are in microsecond
-  float dt = float(measurement_pack.timestamp_ - previous_timestamp_) / 1e6;
+  double dt = float(measurement_pack.timestamp_ - previous_timestamp_) / 1e6;
   MatrixXd F_in(4,4);
   F_in << 1.0,   0,  dt,   0,
-              0, 1.0,   0,  dt,
-              0,   0, 1.0,   0,
-              0,   0,   0, 1.0;
+            0, 1.0,   0,  dt,
+            0,   0, 1.0,   0,
+            0,   0,   0, 1.0;
 
-  // initialize state transition with an uncertainty matrix        
-  MatrixXd P_in(4,4);
-  P_in << 1000, 0, 0, 0,
-            0, 1000, 0, 0,
-            0, 0, 1000, 0,
-            0, 0, 0, 1000; 
 
   if (!is_initialized_) {
     /**
@@ -81,6 +75,13 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     cout << "EKF: " << endl;
     ekf_.x_ = VectorXd(4);
     ekf_.x_ << 1, 1, 1, 1;
+    
+    // initialize state transition with an uncertainty matrix        
+    MatrixXd P_in(4,4);
+    P_in << 1000, 0, 0, 0,
+              0, 1000, 0, 0,
+              0, 0, 1000, 0,
+              0, 0, 0, 1000; 
     
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
       // TODO: Convert radar from polar to cartesian coordinates 
@@ -136,21 +137,23 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    * TODO: Update the process noise covariance matrix.
    * Use noise_ax = 9 and noise_ay = 9 for your Q matrix.
    */
-  float noise_ax_2 = 9.f * 9.f;
-  float noise_ay_2 = 9.f * 9.f;
-  float dt2 = dt * dt;
-  float dt3 = dt2 * dt;
-  float dt4 = dt3 * dt;
+  if ( dt > 0.001 ) // don't predict betweeen two sensor updates
+  {
+     float noise_ax_2 = 9.f * 9.f;
+     float noise_ay_2 = 9.f * 9.f;
+     float dt2 = dt * dt;
+     float dt3 = dt2 * dt;
+     float dt4 = dt3 * dt;
+     
+     // compute process noise matrix 
+     ekf_.Q_ << dt4 * noise_ax_2/4.f, 0, dt3 * noise_ax_2/2.f, 0,
+          0, dt4 * noise_ay_2/4.f, 0, dt3 * noise_ay_2/2.f,
+          dt3 * noise_ax_2/2.f, 0, dt2 * noise_ax_2, 0,
+          0, dt3 * noise_ay_2/2.f, 0, dt2 * noise_ay_2;
+     ekf_.F_ = F_in;
 
-  ekf_.Q_ << dt4 * noise_ax_2/4.f, 0, dt3 * noise_ax_2/2.f, 0,
-        0, dt4 * noise_ay_2/4.f, 0, dt3 * noise_ay_2/2.f,
-        dt3 * noise_ax_2/2.f, 0, dt2 * noise_ax_2, 0,
-        0, dt3 * noise_ay_2/2.f, 0, dt2 * noise_ay_2;
-  ekf_.P_ = P_in;
-  ekf_.F_ = F_in;
-
-  ekf_.Predict();
-
+     ekf_.Predict();
+  }
   /**
    * Update
    */
