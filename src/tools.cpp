@@ -3,7 +3,9 @@
 
 using Eigen::VectorXd;
 using Eigen::MatrixXd;
-using std::vector, std::cout, std::endl;
+using std::vector;
+using std::cout;
+using std::endl;
 
 Tools::Tools() {}
 
