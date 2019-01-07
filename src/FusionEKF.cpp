@@ -54,7 +54,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    * Initialization
    */
   // time stamps are in microsecond
-  double dt = float(measurement_pack.timestamp_ - previous_timestamp_) / 1e6;
+  double dt = double(measurement_pack.timestamp_ - previous_timestamp_) / 1000000.0;
   MatrixXd F_in(4,4);
   F_in << 1.0,   0,  dt,   0,
             0, 1.0,   0,  dt,
@@ -80,42 +80,31 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
               0, 1000, 0, 0,
               0, 0, 1000, 0,
               0, 0, 0, 1000; 
-    
+    // Initialize process noise to zero, no delta_t => process uncertainty is meaningless        
+    MatrixXd Q_in(4,4);
+    Q_in << 0, 0, 0, 0,
+            0, 0, 0, 0,
+            0, 0, 0, 0,
+            0, 0, 0, 0;    
+
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
       // TODO: Convert radar from polar to cartesian coordinates 
       //         and initialize state.
-      double zho = measurement_pack.raw_measurements_(0);
+      double ro = measurement_pack.raw_measurements_(0);
       double phi = measurement_pack.raw_measurements_(1);
-      double dzho = measurement_pack.raw_measurements_(2);
+      double dro = measurement_pack.raw_measurements_(2);
       VectorXd x(4);
-      x << zho * cos(phi), 
-           zho * sin(phi),
-           dzho * cos(phi),
-           dzho * sin(phi);
-      MatrixXd P_in;
-
-      // Initialize process noise to zero, no delta_t => process uncertainty is meaningless        
-      MatrixXd Q_in(4,4);
-      Q_in << 0, 0, 0, 0,
-              0, 0, 0, 0,
-              0, 0, 0, 0,
-              0, 0, 0, 0;
-
+      x << ro * cos(phi), 
+           ro * sin(phi),
+           dro * cos(phi),
+           dro * sin(phi);
       ekf_.Init(x, P_in, F_in, Hj_, R_radar_, Q_in);
     }
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
       // TODO: Initialize state.
       VectorXd x(4);
-      x << measurement_pack.raw_measurements_[0], 
-           measurement_pack.raw_measurements_[1], 0, 0;
-
-      // Initialize process noise to zero, no delta_t => process uncertainty is meaningless        
-      MatrixXd Q_in(4,4);
-      Q_in << 0, 0, 0, 0,
-              0, 0, 0, 0,
-              0, 0, 0, 0,
-              0, 0, 0, 0;
-
+      x << measurement_pack.raw_measurements_(0), 
+           measurement_pack.raw_measurements_(1), 0, 0;
       ekf_.Init(x, P_in, F_in, H_laser_, R_laser_, Q_in);
     }
 
