@@ -77,10 +77,10 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     
     // initialize state transition with an uncertainty matrix        
     MatrixXd P_in(4,4);
-    P_in << 1000, 0, 0, 0,
-              0, 1000, 0, 0,
-              0, 0, 1000, 0,
-              0, 0, 0, 1000; 
+    P_in <<  1.,  0,     0,     0,
+              0, 1.,     0,     0,
+              0,  0, 1000.,     0,
+              0,  0,     0, 1000.; 
     // Initialize process noise to zero, no delta_t => process uncertainty is meaningless        
     MatrixXd Q_in(4,4);
     Q_in << 0, 0, 0, 0,
@@ -91,14 +91,14 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
       // TODO: Convert radar from polar to cartesian coordinates 
       //         and initialize state.
-      double ro  = measurement_pack.raw_measurements_(0);
-      double phi = measurement_pack.raw_measurements_(1);
-      double dro = measurement_pack.raw_measurements_(2);
+      double rho  = measurement_pack.raw_measurements_(0);
+      double phi  = measurement_pack.raw_measurements_(1);
+      double drho = measurement_pack.raw_measurements_(2);
       VectorXd x(4);
-      x << ro * cos(phi), 
-           ro * sin(phi),
-           dro * cos(phi),
-           dro * sin(phi);
+      x << rho * cos(phi), 
+           rho * sin(phi),
+           drho * cos(phi),
+           drho * sin(phi);
       ekf_.Init(x, P_in, F_in, Hj_, R_radar_, Q_in);
     }
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
@@ -128,9 +128,9 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   if (dt > 0.001) // don't predict betweeen two sensor updates
   {
      double noise_ax = 9, noise_ay = 9;
-     float dt2 = dt * dt;
-     float dt3 = dt2 * dt;
-     float dt4 = dt3 * dt;
+     double dt2 = dt * dt;
+     double dt3 = dt2 * dt;
+     double dt4 = dt3 * dt;
      
      // compute process noise matrix 
      ekf_.Q_ << dt4 * noise_ax/4.f, 0, dt3 * noise_ax/2.f, 0,
