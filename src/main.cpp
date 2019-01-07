@@ -42,7 +42,6 @@ int main() {
   vector<VectorXd> estimations;
   vector<VectorXd> ground_truth;
 
-  cout << "check point #1" << endl;
   h.onMessage([&fusionEKF,&tools,&estimations,&ground_truth]
               (uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, 
                uWS::OpCode opCode) {

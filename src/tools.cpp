@@ -16,9 +16,8 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
   /**
    * TODO: Calculate the RMSE here.
    */
-
-   VectorXd rmse(ground_truth.size());
-   rmse = VectorXd::Zero(ground_truth.size());
+   VectorXd rmse(ground_truth[0].size());
+   rmse = VectorXd::Zero(ground_truth[0].size());
 
    if (estimations.size() != ground_truth.size() || estimations.size() == 0) {
       cout << "Invalid estimation or ground_truth data" << endl;
