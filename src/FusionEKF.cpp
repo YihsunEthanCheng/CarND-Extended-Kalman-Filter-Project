@@ -19,9 +19,7 @@ FusionEKF::FusionEKF() {
 
   // initializing matrices
   R_laser_ = MatrixXd(2, 2);
-  R_radar_ = MatrixXd(3, 3);
   H_laser_ = MatrixXd(2, 4);
-  Hj_ = MatrixXd(3, 4);
 
   //measurement covariance matrix - laser
   R_laser_ << 0.0225, 0,
@@ -165,22 +163,14 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
     // TODO: Radar updates
     // convert polar space to Cartesian space
-    ekf_.H_ = Hj_;
+    ekf_.H_ = tools.CalculateJacobian(ekf_.x_);
     ekf_.R_ = R_radar_;
-    VectorXd z(3);
-    z << measurement_pack.raw_measurements_[0],
-         measurement_pack.raw_measurements_[1];
-         measurement_pack.raw_measurements_[2];
-    ekf_.UpdateEKF(z);
+    ekf_.UpdateEKF(measurement_pack.raw_measurements_);
   } else {
     // TODO: Laser updates
     ekf_.H_ = H_laser_;
     ekf_.R_ = R_laser_; 
-    VectorXd z(3);
-    double px = measurement_pack.raw_measurements_[0];
-    double py = measurement_pack.raw_measurements_[1];
-    z << sqrt(px*px + py*py), atan2f(py, px), 0;
-    ekf_.Update(z);
+    ekf_.Update(measurement_pack.raw_measurements_);
   }
 
   // print the output
