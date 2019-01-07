@@ -22,7 +22,7 @@ void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
   H_ = H_in;
   R_ = R_in;
   Q_ = Q_in;
-  cout << "Initi called" << endl;
+  cout << "Init called" << endl;
   cout << "Q_"  << Q_ << endl;
 }
 

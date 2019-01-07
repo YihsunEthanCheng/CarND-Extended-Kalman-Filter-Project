@@ -91,7 +91,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       x << zho * cos(phi), 
            zho * sin(phi),
            dzho * cos(phi),
-           dzho * sin(dzho);
+           dzho * sin(phi);
       MatrixXd P_in;
 
       // Initialize process noise to zero, no delta_t => process uncertainty is meaningless        
