@@ -63,7 +63,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
             0,   0, 1.0,   0,
             0,   0,   0, 1.0;
 
-
   if (!is_initialized_) {
     /**
      * TODO: Initialize the state ekf_.x_ with the first measurement.
@@ -126,7 +125,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    * TODO: Update the process noise covariance matrix.
    * Use noise_ax = 9 and noise_ay = 9 for your Q matrix.
    */
-  if ( dt > 0.001 ) // don't predict betweeen two sensor updates
+  if (dt > 0.001) // don't predict betweeen two sensor updates
   {
      double noise_ax = 9, noise_ay = 9;
      float dt2 = dt * dt;
