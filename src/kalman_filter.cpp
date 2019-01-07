@@ -62,7 +62,11 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
 
   VectorXd z_(3);
   z_ << px2py2_sqrt, atan2(py, px), (px * vx + py * vy) / px2py2_sqrt;
-  _UpdateWithError(z_ - z);
+  VectorXd y = z_ - z;
+  
+  // normalize angle error in a circular space ~ [-pi, pi]
+  y(1) = atan2(sin(y(1)), cos(y(1)));
+  _UpdateWithError(y);
 }
 
 void KalmanFilter::_UpdateWithError(const VectorXd &y) {
