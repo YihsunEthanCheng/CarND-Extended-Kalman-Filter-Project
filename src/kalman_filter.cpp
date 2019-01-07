@@ -49,10 +49,10 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
    * TODO: update the state by using Extended Kalman Filter equations
    */
   // compute the error by diff between two different space
-  double px = x_[0];
-  double py = x_[1];
-  double vx = x_[2];
-  double vy = x_[3];
+  double px = x_(0);
+  double py = x_(1);
+  double vx = x_(2);
+  double vy = x_(3);
   double px2py2_sqrt = sqrt(px*px + py*py);
 
   // guard against divided by zero, also this value should not be zero as it is 
