@@ -20,6 +20,8 @@ FusionEKF::FusionEKF() {
   // initializing matrices
   R_laser_ = MatrixXd(2, 2);
   H_laser_ = MatrixXd(2, 4);
+  R_radar_ = MatrixXd(3, 3);
+  Hj_      = MatrixXd(3, 4);
 
   //measurement covariance matrix - laser
   R_laser_ << 0.0225, 0,
