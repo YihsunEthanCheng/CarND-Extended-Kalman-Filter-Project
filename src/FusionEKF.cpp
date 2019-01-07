@@ -139,19 +139,17 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    */
   if ( dt > 0.001 ) // don't predict betweeen two sensor updates
   {
-     float noise_ax_2 = 9.f * 9.f;
-     float noise_ay_2 = 9.f * 9.f;
+     double noise_ax = 9, noise_ay = 9;
      float dt2 = dt * dt;
      float dt3 = dt2 * dt;
      float dt4 = dt3 * dt;
      
      // compute process noise matrix 
-     ekf_.Q_ << dt4 * noise_ax_2/4.f, 0, dt3 * noise_ax_2/2.f, 0,
-          0, dt4 * noise_ay_2/4.f, 0, dt3 * noise_ay_2/2.f,
-          dt3 * noise_ax_2/2.f, 0, dt2 * noise_ax_2, 0,
-          0, dt3 * noise_ay_2/2.f, 0, dt2 * noise_ay_2;
+     ekf_.Q_ << dt4 * noise_ax/4.f, 0, dt3 * noise_ax/2.f, 0,
+          0, dt4 * noise_ay/4.f, 0, dt3 * noise_ay/2.f,
+          dt3 * noise_ax/2.f, 0, dt2 * noise_ax, 0,
+          0, dt3 * noise_ay/2.f, 0, dt2 * noise_ay;
      ekf_.F_ = F_in;
-
      ekf_.Predict();
   }
   /**
