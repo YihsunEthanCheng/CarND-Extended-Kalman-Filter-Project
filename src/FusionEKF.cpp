@@ -39,9 +39,11 @@ FusionEKF::FusionEKF() {
   H_laser_ << 1.0, 0, 0, 0,
               0.0, 1, 0, 0;
 
-  Hj_ << 1.0, 1.0, 0, 0,
-           0, 1.0, 0, 0,
-           0, 0, 0, 1;
+  // initialize Jacobian with zeo matrix
+  Hj_ <<   0, 0, 0, 0,
+           0, 0, 0, 0,
+           0, 0, 0, 0;
+
 }
 
 /**
@@ -53,7 +55,21 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   /**
    * Initialization
    */
-  float dt = float(measurement_pack.timestamp_ - previous_timestamp_);
+  // time stamps are in microsecond
+  float dt = float(measurement_pack.timestamp_ - previous_timestamp_) / 1e6;
+  MatrixXd F_in(4,4);
+  F_in << 1.0,   0,  dt,   0,
+              0, 1.0,   0,  dt,
+              0,   0, 1.0,   0,
+              0,   0,   0, 1.0;
+
+  // initialize state transition with an uncertainty matrix        
+  MatrixXd P_in(4,4);
+  P_in << 1000, 0, 0, 0,
+            0, 1000, 0, 0,
+            0, 0, 1000, 0,
+            0, 0, 0, 1000; 
+
   if (!is_initialized_) {
     /**
      * TODO: Initialize the state ekf_.x_ with the first measurement.
@@ -65,8 +81,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     cout << "EKF: " << endl;
     ekf_.x_ = VectorXd(4);
     ekf_.x_ << 1, 1, 1, 1;
-
-
+    
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
       // TODO: Convert radar from polar to cartesian coordinates 
       //         and initialize state.
@@ -74,23 +89,29 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       double phi = measurement_pack.raw_measurements_(1);
       double dzho = measurement_pack.raw_measurements_(2);
       VectorXd x(4);
-      x << zho * cos(phi), zho * sin(phi), dzho * cos(phi), dzho * sin(dzho);
+      x << zho * cos(phi), 
+           zho * sin(phi),
+           dzho * cos(phi),
+           dzho * sin(dzho);
       MatrixXd P_in;
 
+      // Initialize process noise to zero, no delta_t => process uncertainty is meaningless        
+      MatrixXd Q_in(4,4);
+      Q_in << 0, 0, 0, 0,
+              0, 0, 0, 0,
+              0, 0, 0, 0,
+              0, 0, 0, 0;
 
       ekf_.Init(x, P_in, F_in, Hj_, R_radar_, Q_in);
     }
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
       // TODO: Initialize state.
       VectorXd x(4);
-      x << measurement_pack.raw_measurements_[0], measurement_pack.raw_measurements_[1], 0, 0;
-      MatrixXd F_in(4,4);
-      F_in << 1.0, 0, dt, 0,
-              0,  1.0, 0, dt,
-              0, 0, 1.0, 0,
-              0, 0, 0, 1.0;
-      
-      MatrixXd P_in(4,4), Q_in(4,4);
+      x << measurement_pack.raw_measurements_[0], 
+           measurement_pack.raw_measurements_[1], 0, 0;
+
+      // Initialize process noise to zero, no delta_t => process uncertainty is meaningless        
+      MatrixXd Q_in(4,4);
       Q_in << 0, 0, 0, 0,
               0, 0, 0, 0,
               0, 0, 0, 0,
@@ -125,6 +146,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
         0, dt4 * noise_ay_2/4.f, 0, dt3 * noise_ay_2/2.f,
         dt3 * noise_ax_2/2.f, 0, dt2 * noise_ax_2, 0,
         0, dt3 * noise_ay_2/2.f, 0, dt2 * noise_ay_2;
+  ekf_.P_ = P_in;
+  ekf_.F_ = F_in;
 
   ekf_.Predict();
 
@@ -140,11 +163,13 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
     // TODO: Radar updates
+    // convert polar space to Cartesian space
     ekf_.H_ = Hj_;
     ekf_.R_ = R_radar_;
-    VectorXd z(2);
+    VectorXd z(3);
     z << measurement_pack.raw_measurements_[0],
          measurement_pack.raw_measurements_[1];
+         measurement_pack.raw_measurements_[2];
     ekf_.UpdateEKF(z);
   } else {
     // TODO: Laser updates
