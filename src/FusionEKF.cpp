@@ -176,8 +176,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     ekf_.H_ = H_laser_;
     ekf_.R_ = R_laser_; 
     VectorXd z(3);
-    float px = measurement_pack.raw_measurements_[0];
-    float py = measurement_pack.raw_measurements_[1];
+    double px = measurement_pack.raw_measurements_[0];
+    double py = measurement_pack.raw_measurements_[1];
     z << sqrt(px*px + py*py), atan2f(py, px), 0;
     ekf_.Update(z);
   }
