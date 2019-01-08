@@ -12,7 +12,6 @@
 
 To apply Extended Kalman Filter theory on tracking moving objects. In particular, achieve superior tracking accruacy by fusing measurements from independent sensors.
 
----
 
 ## How to run this project
 
@@ -28,7 +27,6 @@ This module is coded in C++ and is stored in the [src](./src) folder. The execut
       ./build/ExtendedKF
      ```
 
----
 
 ## Kalman Filter in a Nutshell
 
@@ -51,7 +49,6 @@ A Kalman filter estimates hidden state variables of a dynamic system. The hidden
 
 ![alt text][image1]
 
----
 
 ## Sensor Fusion Through Kalman Filter
 
@@ -67,7 +64,7 @@ A Kalman filter estimates hidden state variables of a dynamic system. The hidden
 ![alt text][image2]
 
 
----
+
 ## Simulation Results
 
 * Tracked states of the vehicle drawn in green dots.
@@ -77,7 +74,7 @@ A Kalman filter estimates hidden state variables of a dynamic system. The hidden
 
 ![alt text][image3]
 
----
+
 ## Takeaways
 
 * Bayesian Theorem - the backbone of fusion independent statistics
