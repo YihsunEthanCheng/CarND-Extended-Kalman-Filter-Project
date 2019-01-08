@@ -29,4 +29,6 @@ class Tools {
 
 };
 
+extern void cout_VectorXd(const Eigen::VectorXd& v);
+
 #endif  // TOOLS_H_

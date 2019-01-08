@@ -34,8 +34,6 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
    return rmse;
 }
 
-#define sqr(x) x*x
-
 MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
    
    MatrixXd Jacobian(3,4);
@@ -59,4 +57,11 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
    }
 
   return Jacobian;
+}
+
+void cout_VectorXd(const VectorXd& v)
+{
+  for (int i =0; i< v.size() ; ++i)
+    cout << v(i) << "\t";
+  cout << endl;
 }

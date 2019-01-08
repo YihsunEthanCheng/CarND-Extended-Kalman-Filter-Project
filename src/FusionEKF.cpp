@@ -2,12 +2,11 @@
 #include <iostream>
 #include "Eigen/Dense"
 #include "tools.h"
+#include <string>
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
-using std::cout;
-using std::endl;
-using std::vector;
+using namespace std;
 
 /**
  * Constructor.
@@ -50,6 +49,7 @@ FusionEKF::FusionEKF() {
  * Destructor.
  */
 FusionEKF::~FusionEKF() {}
+
 
 void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   /**
@@ -124,12 +124,19 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    * Time is measured in seconds.
    * TODO: Update the process noise covariance matrix.
    * Use noise_ax = 9 and noise_ay = 9 for your Q matrix.
+
    */
+
   if (dt > 0.001) // don't predict betweeen two sensor updates
+
   {
+
      double noise_ax = 9, noise_ay = 9;
+
      double dt2 = dt * dt;
+
      double dt3 = dt2 * dt;
+
      double dt4 = dt3 * dt;
      
      // compute process noise matrix 
@@ -150,21 +157,29 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    * - Update the state and covariance matrices.
    */
 
+  VectorXd x_meas(2);
+  string RL = "R_x_meas : ";
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
     // TODO: Radar updates
     // convert polar space to Cartesian space
     ekf_.H_ = tools.CalculateJacobian(ekf_.x_);
     ekf_.R_ = R_radar_;
     ekf_.UpdateEKF(measurement_pack.raw_measurements_);
+    x_meas << measurement_pack.raw_measurements_(0) * cos(measurement_pack.raw_measurements_(1)),
+    measurement_pack.raw_measurements_(0) * sin(measurement_pack.raw_measurements_(1));
   } else {
+    return;
     // TODO: Laser updates
     ekf_.H_ = H_laser_;
     ekf_.R_ = R_laser_; 
     ekf_.Update(measurement_pack.raw_measurements_);
+    x_meas = measurement_pack.raw_measurements_;
+    RL[0] = 'L';
   }
 
   // print the output
-  cout << "x_ = " << ekf_.x_ << endl;
+  cout << RL; cout_VectorXd(x_meas);
+  cout << "x_ = "; cout_VectorXd(ekf_.x_);
   cout << "P_ = " << ekf_.P_ << endl;
 
   previous_timestamp_ = measurement_pack.timestamp_;
