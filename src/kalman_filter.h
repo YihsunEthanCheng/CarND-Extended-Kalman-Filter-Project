@@ -6,8 +6,6 @@
 class KalmanFilter {
 
   void _residualUpdate(const Eigen::VectorXd &y);
-  double noise_ax; // process noise in x
-  double noise_ay; // process noise in y
 
  public:
   /**
