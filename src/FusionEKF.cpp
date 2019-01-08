@@ -78,9 +78,9 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     // initialize state transition with an uncertainty matrix        
     MatrixXd P_in(4,4);
     P_in <<  1.,  0,     0,     0,
-              0, 1.,     0,     0,
-              0,  0, 1000.,     0,
-              0,  0,     0, 1000.; 
+              0,  1.,    0,     0,
+              0,  0,  100.,     0,
+              0,  0,     0,   100.; 
     // Initialize process noise to zero, no delta_t => process uncertainty is meaningless        
     MatrixXd Q_in(4,4);
     Q_in << 0, 0, 0, 0,
@@ -168,7 +168,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     x_meas << measurement_pack.raw_measurements_(0) * cos(measurement_pack.raw_measurements_(1)),
     measurement_pack.raw_measurements_(0) * sin(measurement_pack.raw_measurements_(1));
   } else {
-    return;
     // TODO: Laser updates
     ekf_.H_ = H_laser_;
     ekf_.R_ = R_laser_; 

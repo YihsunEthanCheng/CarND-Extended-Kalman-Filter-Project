@@ -40,7 +40,7 @@ void KalmanFilter::Update(const VectorXd &z) {
    * TODO: update the state by using Kalman Filter equations
    */  
   VectorXd y = z - H_ * x_;
-  _UpdateWithError(y);
+  _residualUpdate(y);
 }
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
@@ -65,10 +65,10 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   
   // normalize angle error in a circular space ~ [-pi, pi]
   y(1) = atan2(sin(y(1)), cos(y(1)));
-  _UpdateWithError(y);
+  _residualUpdate(y);
 }
 
-void KalmanFilter::_UpdateWithError(const VectorXd &y) {
+void KalmanFilter::_residualUpdate(const VectorXd &y) {
   MatrixXd S = H_ * P_ * H_.transpose() + R_;
   MatrixXd K = P_ * H_.transpose() * S.inverse();
   x_ = x_ + K * y; 
