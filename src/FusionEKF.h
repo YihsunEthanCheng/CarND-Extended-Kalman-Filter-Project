@@ -10,6 +10,10 @@
 #include "tools.h"
 
 class FusionEKF {
+  
+  double noise_ax; // process noise in x
+  double noise_ay; // process noise in y
+
  public:
   /**
    * Constructor.

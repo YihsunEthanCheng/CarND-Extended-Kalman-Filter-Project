@@ -43,6 +43,10 @@ FusionEKF::FusionEKF() {
            0, 0, 0, 0,
            0, 0, 0, 0;
 
+  // process noise in acceleration as given 
+  noise_ax = 9.;
+  noise_ay = 9.;
+
 }
 
 /**
@@ -128,15 +132,9 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    */
 
   if (dt > 0.001) // don't predict betweeen two sensor updates
-
   {
-
-     double noise_ax = 9, noise_ay = 9;
-
      double dt2 = dt * dt;
-
      double dt3 = dt2 * dt;
-
      double dt4 = dt3 * dt;
      
      // compute process noise matrix 
