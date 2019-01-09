@@ -7,26 +7,24 @@
 [image2]: ./Docs/sensor_fusion.png "flow of sensor fusion"
 [image3]: ./Docs/simulation_result_1.png "simulation result-1"
 
-
 ## Objectives
 
 To apply Extended Kalman Filter theory on tracking moving objects. In particular, achieve superior tracking accruacy by fusing measurements from independent sensors.
 
-
 ## How to run this project
 
 To run this project, the following three modules need to be installed on the same computer, preferably Linux-like system.
-1. Simulator <BR>
-The simulator is owned by Udacity and can be downloded [here](https://github.com/udacity/self-driving-car-sim/releases). The simulator simulates a sensor hub and spits out synthesized Lidar and Radar readings through a ethernet socket. Once the simulator is downloaded/installed/launched, the sythesized sensor data are sent over the ports for any socket client to grab in the sensing frequency similar to the real sensors.
-2. uWebSocketIO <BR>
-uWebSocketIO is a communication library which implements the Ethernet socket for data exchanges.  This library offers C/C++ interface for socket programming to communicate with any other device through Ethernet port. This library can be downloaded [here](https://github.com/uNetworking/uWebSockets) but can only be installed in Linux-like systems.
-3. Extended Kalman Filters <BR>
-This module is coded in C++ and is stored in the [src](./src) folder. The executable binary is available at the [build](./build) folder and can be launched by the command below. Once launched, the Kalman filter is waiting for Lidar/Radar data from the simulator to perform tracking of a moving object. The updated states are send to the simulator for display.
+
+1. The Simulator <BR>
+ The simulator is owned by Udacity and can be downloded [here](https://github.com/udacity/self-driving-car-sim/releases). The simulator simulates a sensor hub and spits out synthesized Lidar and Radar readings through a ethernet socket. Once the simulator is downloaded/installed/launched, the sythesized sensor data are sent over the ports for any socket client to grab in the sensing frequency similar to the real sensors.
+2. The Socket - uWebSocketIO <BR>
+ uWebSocketIO is a communication library which implements the Ethernet socket for data exchanges.  This library offers C/C++ interface for socket programming to communicate with any other device through Ethernet port. This library can be downloaded [here](https://github.com/uNetworking/uWebSockets) but can only be installed in Linux-like systems.
+3. The Extended Kalman Filter <BR>
+ This module is coded in C++ and is stored in the [src](./src) folder. The executable binary is available at the [build](./build) folder and can be launched by the command below. Once launched, the Kalman filter is waiting for Lidar/Radar data from the simulator to perform tracking of a moving object. The updated states are send to the simulator for display.
 
      ```sh
       ./build/ExtendedKF
      ```
-
 
 ## Kalman Filter in a Nutshell
 
@@ -49,10 +47,9 @@ A Kalman filter estimates hidden state variables of a dynamic system. The hidden
 
 ![alt text][image1]
 
-
 ## Sensor Fusion Through Kalman Filter
 
-1. How fusion are achieved <BR> 
+1. How fusion are achieved <BR>
   Sensor fusion in Kalman Filter is achieved through individual updating steps by multiple sensors of the same purpose. Lidar and Radar sensors are perfect examples for sensing moving objects. Both are intented to sense the location of a object. As they sense the object in different mechanism, the two are known to be independent agents. Thus, a perfect pair of candidates for sensor fusion through Bayesian theory.  
 
 2. Only affecting the updating stage <BR>
@@ -63,21 +60,19 @@ A Kalman filter estimates hidden state variables of a dynamic system. The hidden
 
 ![alt text][image2]
 
-
-
 ## Simulation Results
 
 * Tracked states of the vehicle drawn in green dots.
 * Red dots are locations measurements by Laser.
 * Blue dots are locations measurements from Radar.
 
-
 ![alt text][image3]
-
 
 ## Takeaways
 
-* Bayesian Theorem - the backbone of fusion independent statistics
+* Bayesian Theorem - the beauty and the backbone of statistical fusion <BR>
+  In the example shown here, we have observed two uncorrelated sensing mechanisms which provide indpendent measurement for the corretion of Kalman filter. As a result, the two readings can be independently applied to correct the Kalman gain and leads to better acuracy. The key is: even with poor sensing accuracy in each different sesnor, the combined result through fusion can be exponetially superior than the individuals working alone. This multiplication operation in the process is the beauty of the fusion through Bayesian approach. Note that such mechanism will fails if the mutual independency between individaul sensors does not exist. For example, if two Laser sensors are measured instead of the Lidar/Radar combo. The multiplication effect will not work. Instead, the two meanurements would be averaged first then applied to the updating stage. The power of noise removal becomes a linear effect instead of the exponential effect.
 
 * Importance of Initial conditions
-
+  * It is well known that the Kalman filter is able to achieve prediction accuracy by actively adjusting the Kalman gain at each instance.  A key ingredient is the residual, the error that dictates that dictates the Kalman gain. This mechanism could lead to a misconception that regardless the initial values, any wild guess will evetually be resolved through correction because of the actively adatpting Kalman gain. In our example, a poor initial value in Q will take a long time to correct, which often leads state estimation erro.  Without picking close enough initial values, the RMSE is seen to remain high until the end of the simulation run.
+  * Another problem associated with poor initial values is that often we need the Kalman filter to reach steady residual error in short period time in many applicaitons. In those cases, the need of a good inital state becomes very import.
